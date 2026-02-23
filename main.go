@@ -3,13 +3,13 @@ package main
 import (
 	"os"
 
-	"github.com/basilysf1709/golos/cmd"
+	"github.com/basilysf1709/golos/cli"
 )
 
 func main() {
 	// golos stop
 	if len(os.Args) > 1 && os.Args[1] == "stop" {
-		cmd.Stop()
+		cli.Stop()
 		return
 	}
 
@@ -30,9 +30,9 @@ func main() {
 	os.Args = filtered
 
 	if background {
-		cmd.Run(false)
+		cli.Run(false)
 		return
 	}
 
-	cmd.Run(detach)
+	cli.Run(detach)
 }
