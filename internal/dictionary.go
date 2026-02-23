@@ -104,15 +104,16 @@ func (d *Dictionary) Replace(text string) string {
 	}
 
 	text = strings.TrimRight(text, ".!?")
-	lower := strings.ToLower(text)
 	for phrase, replacement := range d.entries {
-		for {
-			idx := strings.Index(strings.ToLower(lower), phrase)
+		offset := 0
+		for offset < len(text) {
+			idx := strings.Index(strings.ToLower(text[offset:]), phrase)
 			if idx == -1 {
 				break
 			}
-			text = text[:idx] + replacement + text[idx+len(phrase):]
-			lower = strings.ToLower(text)
+			pos := offset + idx
+			text = text[:pos] + replacement + text[pos+len(phrase):]
+			offset = pos + len(replacement)
 		}
 	}
 
