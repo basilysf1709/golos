@@ -180,6 +180,8 @@ func TestAccumulateFinal(t *testing.T) {
 	results := make(chan internal.TranscriptResult, 8)
 	p.doneCh = make(chan struct{})
 	p.gotFinal = make(chan struct{})
+	p.connected = make(chan struct{})
+	close(p.connected) // simulate already-connected state
 	p.provider = &mockProvider{results: results}
 
 	go p.accumulate()
@@ -215,6 +217,8 @@ func TestAccumulateMultipleFinals(t *testing.T) {
 	results := make(chan internal.TranscriptResult, 8)
 	p.doneCh = make(chan struct{})
 	p.gotFinal = make(chan struct{})
+	p.connected = make(chan struct{})
+	close(p.connected) // simulate already-connected state
 	p.provider = &mockProvider{results: results}
 
 	go p.accumulate()
