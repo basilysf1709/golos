@@ -108,6 +108,11 @@ func (p *Processor) Stop() {
 	// Wait for connection if still pending (with timeout)
 	select {
 	case <-conn:
+		// Connection finished — re-capture provider since it may have been
+		// nil when we first read it (connect() assigns it under lock).
+		p.mu.Lock()
+		prov = p.provider
+		p.mu.Unlock()
 	case <-time.After(2 * time.Second):
 	}
 
