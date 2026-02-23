@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/gordonklaus/portaudio"
@@ -16,9 +17,23 @@ import (
 	"github.com/basilysf1709/golos/processor"
 )
 
+var pidOnce sync.Once
+
 func pidFile() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".config", "golos", "golos.pid")
+}
+
+func writePID(pid int) {
+	path := pidFile()
+	os.MkdirAll(filepath.Dir(path), 0700)
+	os.WriteFile(path, []byte(strconv.Itoa(pid)), 0600)
+}
+
+func removePIDOnce() {
+	pidOnce.Do(func() {
+		os.Remove(pidFile())
+	})
 }
 
 func Run(detach bool) {
@@ -176,10 +191,10 @@ func runDetached() {
 	// Log to file
 	home, _ := os.UserHomeDir()
 	logDir := filepath.Join(home, ".config", "golos")
-	os.MkdirAll(logDir, 0755)
+	os.MkdirAll(logDir, 0700)
 	logPath := filepath.Join(logDir, "golos.log")
 
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating log file: %v\n", err)
 		os.Exit(1)
@@ -193,7 +208,7 @@ func runDetached() {
 	}
 
 	// Write PID file
-	os.WriteFile(pidFile(), []byte(strconv.Itoa(cmd.Process.Pid)), 0644)
+	writePID(cmd.Process.Pid)
 
 	fmt.Printf("golos running in background (PID %d)\n", cmd.Process.Pid)
 	fmt.Printf("  Log: %s\n", logPath)
@@ -209,9 +224,8 @@ func runForeground() {
 	defer portaudio.Terminate()
 
 	// Write PID file so `golos stop` works in both modes
-	os.MkdirAll(filepath.Dir(pidFile()), 0755)
-	os.WriteFile(pidFile(), []byte(strconv.Itoa(os.Getpid())), 0644)
-	defer os.Remove(pidFile())
+	writePID(os.Getpid())
+	defer removePIDOnce()
 
 	// Handle Ctrl+C
 	sigCh := make(chan os.Signal, 1)
@@ -219,7 +233,7 @@ func runForeground() {
 	go func() {
 		<-sigCh
 		fmt.Println("\nShutting down...")
-		os.Remove(pidFile())
+		removePIDOnce()
 		internal.StopHotkey()
 	}()
 

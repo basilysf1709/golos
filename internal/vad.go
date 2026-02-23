@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/binary"
+	"sync"
 
 	webrtcvad "github.com/maxhawkins/go-webrtcvad"
 )
@@ -15,6 +16,7 @@ const (
 )
 
 type Detector struct {
+	mu             sync.Mutex
 	vad            *webrtcvad.VAD
 	sampleRate     int
 	hangoverFrames int
@@ -59,6 +61,9 @@ func (d *Detector) Process(frame []int16) (VADEvent, error) {
 		return VADNone, err
 	}
 
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
 	if active {
 		d.silentCount = 0
 		if !d.active {
@@ -82,11 +87,15 @@ func (d *Detector) Process(frame []int16) (VADEvent, error) {
 
 // IsActive returns whether speech is currently detected.
 func (d *Detector) IsActive() bool {
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	return d.active
 }
 
 // Reset resets the VAD state.
 func (d *Detector) Reset() {
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	d.active = false
 	d.silentCount = 0
 }

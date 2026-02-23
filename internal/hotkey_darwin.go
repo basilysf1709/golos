@@ -8,6 +8,7 @@ import "C"
 
 import (
 	"fmt"
+	"sync"
 )
 
 const (
@@ -24,21 +25,28 @@ type HotkeyInfo struct {
 }
 
 var (
-	onDown func()
-	onUp   func()
+	hotkeyMu sync.Mutex
+	onDown   func()
+	onUp     func()
 )
 
 //export goHotkeyDown
 func goHotkeyDown() {
-	if onDown != nil {
-		onDown()
+	hotkeyMu.Lock()
+	fn := onDown
+	hotkeyMu.Unlock()
+	if fn != nil {
+		fn()
 	}
 }
 
 //export goHotkeyUp
 func goHotkeyUp() {
-	if onUp != nil {
-		onUp()
+	hotkeyMu.Lock()
+	fn := onUp
+	hotkeyMu.Unlock()
+	if fn != nil {
+		fn()
 	}
 }
 
@@ -73,8 +81,10 @@ func CheckAccessibility() bool {
 }
 
 func ListenHotkey(hk HotkeyInfo, downFn, upFn func()) error {
+	hotkeyMu.Lock()
 	onDown = downFn
 	onUp = upFn
+	hotkeyMu.Unlock()
 
 	if !C.startEventTap(hk.KeyCode, hk.ModFlag) {
 		return fmt.Errorf("failed to create event tap — check Accessibility permissions")

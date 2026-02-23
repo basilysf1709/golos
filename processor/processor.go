@@ -76,14 +76,17 @@ func (p *Processor) Start() {
 }
 
 func (p *Processor) connect() {
-	p.provider = internal.NewDeepgram(p.cfg.DeepgramAPIKey, p.cfg.Language)
-	if err := p.provider.Connect(); err != nil {
+	prov := internal.NewDeepgram(p.cfg.DeepgramAPIKey, p.cfg.Language)
+	if err := prov.Connect(); err != nil {
 		fmt.Fprintf(os.Stderr, "\nSTT connect error: %v\n", err)
 		p.mu.Lock()
 		p.recording = false
 		p.mu.Unlock()
 		return
 	}
+	p.mu.Lock()
+	p.provider = prov
+	p.mu.Unlock()
 	close(p.connected)
 }
 
@@ -146,6 +149,7 @@ func (p *Processor) Stop() {
 func (p *Processor) streamAudio() {
 	// Buffer frames while Deepgram connects
 	var buffered [][]byte
+	var prov internal.Provider
 
 	for frame := range p.capture.Frames() {
 		p.vad.Process(frame)
@@ -161,14 +165,23 @@ func (p *Processor) streamAudio() {
 
 		select {
 		case <-p.connected:
+			// Capture provider once after connection is ready
+			if prov == nil {
+				p.mu.Lock()
+				prov = p.provider
+				p.mu.Unlock()
+			}
+			if prov == nil {
+				continue
+			}
 			// Connected — flush buffer then stream normally
 			if len(buffered) > 0 {
 				for _, b := range buffered {
-					p.provider.Write(b)
+					prov.Write(b)
 				}
 				buffered = nil
 			}
-			p.provider.Write(buf)
+			prov.Write(buf)
 		default:
 			// Still connecting — buffer the audio
 			buffered = append(buffered, buf)
