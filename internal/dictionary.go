@@ -103,6 +103,7 @@ func (d *Dictionary) Replace(text string) string {
 		return text
 	}
 
+	text = strings.TrimRight(text, ".!?")
 	lower := strings.ToLower(text)
 	for phrase, replacement := range d.entries {
 		for {
