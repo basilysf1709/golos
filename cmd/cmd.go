@@ -21,11 +21,42 @@ func pidFile() string {
 }
 
 func Run(detach bool) {
+	if err := checkAlreadyRunning(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 	if detach {
 		runDetached()
 		return
 	}
 	runForeground()
+}
+
+func checkAlreadyRunning() error {
+	data, err := os.ReadFile(pidFile())
+	if err != nil {
+		return nil // no pid file — not running
+	}
+
+	pid, err := strconv.Atoi(string(data))
+	if err != nil {
+		os.Remove(pidFile()) // corrupt pid file — clean up
+		return nil
+	}
+
+	proc, err := os.FindProcess(pid)
+	if err != nil {
+		os.Remove(pidFile())
+		return nil
+	}
+
+	// Signal 0 checks if the process exists without killing it
+	if err := proc.Signal(syscall.Signal(0)); err != nil {
+		os.Remove(pidFile()) // stale pid file — process is gone
+		return nil
+	}
+
+	return fmt.Errorf("golos is already running (PID %d)\n  Stop it first with: golos stop", pid)
 }
 
 func Stop() {
