@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/gordonklaus/portaudio"
@@ -44,6 +45,12 @@ func checkAlreadyRunning() error {
 		return nil
 	}
 
+	// The detached parent writes the child's PID before the child starts,
+	// so the child would find its own PID and block itself.
+	if pid == os.Getpid() {
+		return nil
+	}
+
 	proc, err := os.FindProcess(pid)
 	if err != nil {
 		os.Remove(pidFile())
@@ -57,6 +64,64 @@ func checkAlreadyRunning() error {
 	}
 
 	return fmt.Errorf("golos is already running (PID %d)\n  Stop it first with: golos stop", pid)
+}
+
+func DictImport(args []string) {
+	if len(args) < 1 {
+		fmt.Fprintln(os.Stderr, "usage: golos import <file.toml>")
+		os.Exit(1)
+	}
+
+	d := internal.LoadDictionary()
+	count, err := d.Import(args[0])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("imported %d entries\n", count)
+}
+
+func DictAdd(args []string) {
+	if len(args) < 2 {
+		fmt.Fprintln(os.Stderr, "usage: golos add <phrase> <replacement>")
+		os.Exit(1)
+	}
+	phrase := args[0]
+	replacement := strings.Join(args[1:], " ")
+
+	d := internal.LoadDictionary()
+	if err := d.Add(phrase, replacement); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("added: %q → %q\n", phrase, replacement)
+}
+
+func DictDelete(args []string) {
+	if len(args) < 1 {
+		fmt.Fprintln(os.Stderr, "usage: golos delete <phrase>")
+		os.Exit(1)
+	}
+	phrase := strings.Join(args, " ")
+
+	d := internal.LoadDictionary()
+	if !d.Delete(phrase) {
+		fmt.Fprintf(os.Stderr, "not found: %q\n", phrase)
+		os.Exit(1)
+	}
+	fmt.Printf("deleted: %q\n", phrase)
+}
+
+func DictList() {
+	d := internal.LoadDictionary()
+	entries := d.List()
+	if len(entries) == 0 {
+		fmt.Println("dictionary is empty")
+		return
+	}
+	for phrase, replacement := range entries {
+		fmt.Printf("  %q → %q\n", phrase, replacement)
+	}
 }
 
 func Stop() {

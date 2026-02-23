@@ -15,6 +15,7 @@ import (
 type Processor struct {
 	cfg        *internal.Config
 	out        internal.OutputMode
+	dict       *internal.Dictionary
 	vad        *internal.Detector
 	mu         sync.Mutex
 	recording  bool
@@ -31,7 +32,7 @@ func New(cfg *internal.Config, out internal.OutputMode) (*Processor, error) {
 	if err != nil {
 		return nil, fmt.Errorf("VAD init: %w", err)
 	}
-	return &Processor{cfg: cfg, out: out, vad: vad}, nil
+	return &Processor{cfg: cfg, out: out, vad: vad, dict: internal.LoadDictionary()}, nil
 }
 
 func (p *Processor) Start() {
@@ -131,6 +132,7 @@ func (p *Processor) Stop() {
 	p.mu.Unlock()
 
 	if finalText != "" {
+		finalText = p.dict.Replace(finalText)
 		fmt.Print("\r\033[K")
 		if err := p.out.Deliver(finalText); err != nil {
 			fmt.Fprintf(os.Stderr, "Output error: %v\n", err)

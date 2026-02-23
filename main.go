@@ -7,10 +7,24 @@ import (
 )
 
 func main() {
-	// golos stop
-	if len(os.Args) > 1 && os.Args[1] == "stop" {
-		cli.Stop()
-		return
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "stop":
+			cli.Stop()
+			return
+		case "add":
+			cli.DictAdd(os.Args[2:])
+			return
+		case "delete":
+			cli.DictDelete(os.Args[2:])
+			return
+		case "list":
+			cli.DictList()
+			return
+		case "import":
+			cli.DictImport(os.Args[2:])
+			return
+		}
 	}
 
 	// Parse our own flags before flag.Parse() sees them
