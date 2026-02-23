@@ -9,7 +9,30 @@ permissions:
   contents: write
 
 jobs:
+  lint-and-test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install portaudio
+        run: brew install portaudio
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+      - name: Test
+        run: go test ./...
+
   release:
+    needs: lint-and-test
     runs-on: macos-latest
     steps:
       - name: Checkout

@@ -1,4 +1,4 @@
-.PHONY: build install clean deps
+.PHONY: build install clean deps run lint test
 
 BINARY=golos
 
@@ -17,3 +17,10 @@ deps:
 
 run: build
 	./$(BINARY)
+
+lint:
+	@which golangci-lint > /dev/null 2>&1 || { echo "Installing golangci-lint..."; brew install golangci-lint; }
+	golangci-lint run ./...
+
+test:
+	go test ./...

@@ -25,6 +25,7 @@ type Processor struct {
 	doneCh     chan struct{}
 	gotFinal   chan struct{}
 	connected  chan struct{} // closed when Deepgram connection is ready
+	streamWg   sync.WaitGroup // ensures streamAudio() finishes before Finalize()
 }
 
 func New(cfg *internal.Config, out internal.OutputMode) (*Processor, error) {
@@ -69,6 +70,7 @@ func (p *Processor) Start() {
 	go p.connect()
 
 	// Audio → STT (buffers until connected)
+	p.streamWg.Add(1)
 	go p.streamAudio()
 
 	// Transcript accumulator
@@ -116,18 +118,22 @@ func (p *Processor) Stop() {
 	case <-time.After(2 * time.Second):
 	}
 
-	// 1. Stop mic first so streamAudio() exits and no more audio is
-	//    sent after we call Finalize().
+	// 1. Stop mic — closes the frames channel so streamAudio() drains
+	//    any remaining buffered frames and exits.
 	if cap != nil {
 		cap.Stop()
 	}
 
-	// 2. Tell Deepgram we're done sending audio.
+	// 2. Wait for streamAudio() to finish sending all frames to Deepgram.
+	//    Without this, Finalize() could fire before the last frames are written.
+	p.streamWg.Wait()
+
+	// 3. Tell Deepgram we're done sending audio.
 	if prov != nil {
 		prov.Finalize()
 	}
 
-	// 3. Wait for at least one final result, then drain remaining results.
+	// 4. Wait for at least one final result, then drain remaining results.
 	select {
 	case <-gf:
 	case <-time.After(2 * time.Second):
@@ -135,7 +141,7 @@ func (p *Processor) Stop() {
 	// Drain any results still in the channel after the first final.
 	p.drainResults(prov, 300*time.Millisecond)
 
-	// 4. Now safe to tear down.
+	// 5. Now safe to tear down.
 	if done != nil {
 		close(done)
 	}
@@ -187,6 +193,8 @@ func (p *Processor) drainResults(prov internal.Provider, timeout time.Duration) 
 }
 
 func (p *Processor) streamAudio() {
+	defer p.streamWg.Done()
+
 	// Buffer frames while Deepgram connects
 	var buffered [][]byte
 	var prov internal.Provider
