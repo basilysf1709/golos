@@ -4,11 +4,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 )
 
 type Dictionary struct {
+	mu      sync.RWMutex
 	entries map[string]string // lowercase spoken phrase → replacement
 }
 
@@ -47,11 +49,15 @@ func dictionaryPath() string {
 }
 
 func (d *Dictionary) Add(phrase, replacement string) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	d.entries[strings.ToLower(phrase)] = replacement
 	return d.save()
 }
 
 func (d *Dictionary) Delete(phrase string) bool {
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	key := strings.ToLower(phrase)
 	if _, ok := d.entries[key]; !ok {
 		return false
@@ -62,6 +68,8 @@ func (d *Dictionary) Delete(phrase string) bool {
 }
 
 func (d *Dictionary) List() map[string]string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
 	out := make(map[string]string, len(d.entries))
 	for k, v := range d.entries {
 		out[k] = v
@@ -89,6 +97,8 @@ func (d *Dictionary) Import(path string) (int, error) {
 		return 0, err
 	}
 
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	count := 0
 	for phrase, replacement := range f.Words {
 		d.entries[strings.ToLower(phrase)] = replacement
@@ -99,6 +109,8 @@ func (d *Dictionary) Import(path string) (int, error) {
 }
 
 func (d *Dictionary) Replace(text string) string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
 	if len(d.entries) == 0 {
 		return text
 	}
