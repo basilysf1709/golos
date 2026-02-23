@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/iqbalyusuf/golos/cmd"
+	"github.com/basilysf1709/golos/cmd"
 )
 
 func main() {

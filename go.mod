@@ -1,4 +1,4 @@
-module github.com/iqbalyusuf/golos
+module github.com/basilysf1709/golos
 
 go 1.25.0
 

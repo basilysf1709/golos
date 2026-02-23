@@ -11,8 +11,8 @@ import (
 
 	"github.com/gordonklaus/portaudio"
 
-	"github.com/iqbalyusuf/golos/internal"
-	"github.com/iqbalyusuf/golos/processor"
+	"github.com/basilysf1709/golos/internal"
+	"github.com/basilysf1709/golos/processor"
 )
 
 func pidFile() string {

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="iqbalyusuf/golos"
+REPO="basilysf1709/golos"
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="$HOME/.config/golos"
 

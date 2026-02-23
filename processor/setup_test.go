@@ -3,7 +3,7 @@ package processor
 import (
 	"testing"
 
-	"github.com/iqbalyusuf/golos/internal"
+	"github.com/basilysf1709/golos/internal"
 )
 
 func TestResolveOutputStdout(t *testing.T) {
