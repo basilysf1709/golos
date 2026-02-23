@@ -116,18 +116,26 @@ func (p *Processor) Stop() {
 	case <-time.After(2 * time.Second):
 	}
 
+	// 1. Stop mic first so streamAudio() exits and no more audio is
+	//    sent after we call Finalize().
+	if cap != nil {
+		cap.Stop()
+	}
+
+	// 2. Tell Deepgram we're done sending audio.
 	if prov != nil {
 		prov.Finalize()
 	}
 
+	// 3. Wait for at least one final result, then drain remaining results.
 	select {
 	case <-gf:
-	case <-time.After(500 * time.Millisecond):
+	case <-time.After(2 * time.Second):
 	}
+	// Drain any results still in the channel after the first final.
+	p.drainResults(prov, 300*time.Millisecond)
 
-	if cap != nil {
-		cap.Stop()
-	}
+	// 4. Now safe to tear down.
 	if done != nil {
 		close(done)
 	}
@@ -148,6 +156,33 @@ func (p *Processor) Stop() {
 		fmt.Print("\r\033[K")
 	} else {
 		fmt.Print("\r\033[K(no speech detected)\n")
+	}
+}
+
+// drainResults reads any remaining results from the provider channel
+// until no more arrive within the timeout window.
+func (p *Processor) drainResults(prov internal.Provider, timeout time.Duration) {
+	if prov == nil {
+		return
+	}
+	for {
+		select {
+		case result, ok := <-prov.Results():
+			if !ok {
+				return
+			}
+			p.mu.Lock()
+			if result.IsFinal {
+				if p.transcript.Len() > 0 {
+					p.transcript.WriteString(" ")
+				}
+				p.transcript.WriteString(result.Text)
+				fmt.Printf("\r\033[K💬 %s", p.transcript.String())
+			}
+			p.mu.Unlock()
+		case <-time.After(timeout):
+			return
+		}
 	}
 }
 
