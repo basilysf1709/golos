@@ -3,7 +3,7 @@
 
 # Golos
 
-Golos is an extremely lightweight Wispr Flow alternative. Hold a hotkey, speak, release — your words get pasted.
+Golos is an extremely lightweight Wispr Flow alternative. Hold a hotkey, speak, release, and your words get pasted.
 
 ## Install
 
