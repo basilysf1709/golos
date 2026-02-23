@@ -108,7 +108,7 @@ func TestCallbackMessageInterim(t *testing.T) {
 		{Transcript: "hel"},
 	}
 
-	cb.Message(mr)
+	_ = cb.Message(mr)
 
 	got := <-ch
 	if got.Text != "hel" {
@@ -125,7 +125,7 @@ func TestCallbackMessageEmptyAlternatives(t *testing.T) {
 	mr := &api.MessageResponse{}
 	mr.Channel.Alternatives = []api.Alternative{}
 
-	cb.Message(mr)
+	_ = cb.Message(mr)
 
 	if len(ch) != 0 {
 		t.Error("empty alternatives should produce no result")
@@ -140,7 +140,7 @@ func TestCallbackMessageBlankTranscript(t *testing.T) {
 		{Transcript: "   "},
 	}
 
-	cb.Message(mr)
+	_ = cb.Message(mr)
 
 	if len(ch) != 0 {
 		t.Error("blank transcript should produce no result")
@@ -155,7 +155,7 @@ func TestCallbackMessageTrimsWhitespace(t *testing.T) {
 		{Transcript: "  hello  "},
 	}
 
-	cb.Message(mr)
+	_ = cb.Message(mr)
 
 	got := <-ch
 	if got.Text != "hello" {
@@ -171,14 +171,14 @@ func TestCallbackMessageDropsWhenFull(t *testing.T) {
 	mr.Channel.Alternatives = []api.Alternative{
 		{Transcript: "first"},
 	}
-	cb.Message(mr)
+	_ = cb.Message(mr)
 
 	// This should be dropped, not block
 	mr2 := &api.MessageResponse{IsFinal: true}
 	mr2.Channel.Alternatives = []api.Alternative{
 		{Transcript: "second"},
 	}
-	cb.Message(mr2)
+	_ = cb.Message(mr2)
 
 	if len(ch) != 1 {
 		t.Errorf("channel len = %d, want 1 (second message dropped)", len(ch))
@@ -200,7 +200,7 @@ func TestCallbackSpeechFinalFlag(t *testing.T) {
 		{Transcript: "done"},
 	}
 
-	cb.Message(mr)
+	_ = cb.Message(mr)
 
 	got := <-ch
 	if !got.SpeechFinal {

@@ -56,7 +56,7 @@ func TestFramesChannelIsReceiveOnly(t *testing.T) {
 	// Type assertion: Frames() returns <-chan, not chan
 	// This is a compile-time check — if Frames() returned chan []int16,
 	// this test file wouldn't compile since we assign to <-chan []int16.
-	var _ <-chan []int16 = ch
+	_ = ch
 }
 
 func TestStopClosesFramesChannel(t *testing.T) {

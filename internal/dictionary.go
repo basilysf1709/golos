@@ -63,7 +63,7 @@ func (d *Dictionary) Delete(phrase string) bool {
 		return false
 	}
 	delete(d.entries, key)
-	d.save()
+	_ = d.save()
 	return true
 }
 
@@ -79,13 +79,13 @@ func (d *Dictionary) List() map[string]string {
 
 func (d *Dictionary) save() error {
 	path := dictionaryPath()
-	os.MkdirAll(filepath.Dir(path), 0755)
+	_ = os.MkdirAll(filepath.Dir(path), 0755)
 
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	return toml.NewEncoder(f).Encode(dictionaryFile{Words: d.entries})
 }

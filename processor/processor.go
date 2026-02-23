@@ -130,7 +130,7 @@ func (p *Processor) Stop() {
 
 	// 3. Tell Deepgram we're done sending audio.
 	if prov != nil {
-		prov.Finalize()
+		_ = prov.Finalize()
 	}
 
 	// 4. Wait for at least one final result, then drain remaining results.
@@ -200,7 +200,7 @@ func (p *Processor) streamAudio() {
 	var prov internal.Provider
 
 	for frame := range p.capture.Frames() {
-		p.vad.Process(frame)
+		_, _ = p.vad.Process(frame)
 
 		level := rmsLevel(frame)
 		meter := vuMeter(level)
@@ -225,11 +225,11 @@ func (p *Processor) streamAudio() {
 			// Connected — flush buffer then stream normally
 			if len(buffered) > 0 {
 				for _, b := range buffered {
-					prov.Write(b)
+					_, _ = prov.Write(b)
 				}
 				buffered = nil
 			}
-			prov.Write(buf)
+			_, _ = prov.Write(buf)
 		default:
 			// Still connecting — buffer the audio
 			buffered = append(buffered, buf)

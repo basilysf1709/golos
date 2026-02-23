@@ -26,13 +26,13 @@ func pidFile() string {
 
 func writePID(pid int) {
 	path := pidFile()
-	os.MkdirAll(filepath.Dir(path), 0700)
-	os.WriteFile(path, []byte(strconv.Itoa(pid)), 0600)
+	_ = os.MkdirAll(filepath.Dir(path), 0700)
+	_ = os.WriteFile(path, []byte(strconv.Itoa(pid)), 0600)
 }
 
 func removePIDOnce() {
 	pidOnce.Do(func() {
-		os.Remove(pidFile())
+		_ = os.Remove(pidFile())
 	})
 }
 
@@ -56,7 +56,7 @@ func checkAlreadyRunning() error {
 
 	pid, err := strconv.Atoi(string(data))
 	if err != nil {
-		os.Remove(pidFile()) // corrupt pid file — clean up
+		_ = os.Remove(pidFile()) // corrupt pid file — clean up
 		return nil
 	}
 
@@ -68,13 +68,13 @@ func checkAlreadyRunning() error {
 
 	proc, err := os.FindProcess(pid)
 	if err != nil {
-		os.Remove(pidFile())
+		_ = os.Remove(pidFile())
 		return nil
 	}
 
 	// Signal 0 checks if the process exists without killing it
 	if err := proc.Signal(syscall.Signal(0)); err != nil {
-		os.Remove(pidFile()) // stale pid file — process is gone
+		_ = os.Remove(pidFile()) // stale pid file — process is gone
 		return nil
 	}
 
@@ -149,24 +149,24 @@ func Stop() {
 	pid, err := strconv.Atoi(string(data))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "invalid pid file")
-		os.Remove(pidFile())
+		_ = os.Remove(pidFile())
 		os.Exit(1)
 	}
 
 	proc, err := os.FindProcess(pid)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "golos is not running")
-		os.Remove(pidFile())
+		_ = os.Remove(pidFile())
 		os.Exit(1)
 	}
 
 	if err := proc.Signal(syscall.SIGTERM); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to stop golos: %v\n", err)
-		os.Remove(pidFile())
+		_ = os.Remove(pidFile())
 		os.Exit(1)
 	}
 
-	os.Remove(pidFile())
+	_ = os.Remove(pidFile())
 	fmt.Printf("golos stopped (PID %d)\n", pid)
 }
 
@@ -191,7 +191,7 @@ func runDetached() {
 	// Log to file
 	home, _ := os.UserHomeDir()
 	logDir := filepath.Join(home, ".config", "golos")
-	os.MkdirAll(logDir, 0700)
+	_ = os.MkdirAll(logDir, 0700)
 	logPath := filepath.Join(logDir, "golos.log")
 
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
@@ -221,7 +221,7 @@ func runForeground() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-	defer portaudio.Terminate()
+	defer func() { _ = portaudio.Terminate() }()
 
 	// Write PID file so `golos stop` works in both modes
 	writePID(os.Getpid())

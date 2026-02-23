@@ -49,7 +49,7 @@ func (c *Capture) Start() error {
 	c.stream = stream
 
 	if err := stream.Start(); err != nil {
-		stream.Close()
+		_ = stream.Close()
 		return fmt.Errorf("start mic stream: %w", err)
 	}
 
@@ -84,8 +84,8 @@ func (c *Capture) Stop() {
 	close(c.stop)
 	c.wg.Wait()
 	if c.stream != nil {
-		c.stream.Stop()
-		c.stream.Close()
+		_ = c.stream.Stop()
+		_ = c.stream.Close()
 	}
 	close(c.frames)
 }

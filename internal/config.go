@@ -26,7 +26,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	// Load .env file from current directory (silent if missing)
-	godotenv.Load()
+	_ = godotenv.Load()
 
 	// Try config file
 	if home, err := os.UserHomeDir(); err == nil {

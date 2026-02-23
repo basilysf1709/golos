@@ -122,7 +122,7 @@ func TestSpeechEndAfterHangover(t *testing.T) {
 
 	// Trigger speech
 	for i := 0; i < 10; i++ {
-		d.Process(loudFrame())
+		_, _ = d.Process(loudFrame())
 	}
 	if !d.IsActive() {
 		t.Fatal("detector should be active after loud frames")
@@ -153,7 +153,7 @@ func TestHangoverPreventsEarlyEnd(t *testing.T) {
 
 	// Trigger speech
 	for i := 0; i < 10; i++ {
-		d.Process(loudFrame())
+		_, _ = d.Process(loudFrame())
 	}
 
 	// Feed only 2 silent frames — should NOT trigger SpeechEnd
@@ -187,7 +187,7 @@ func TestReset(t *testing.T) {
 
 	// Trigger speech
 	for i := 0; i < 10; i++ {
-		d.Process(loudFrame())
+		_, _ = d.Process(loudFrame())
 	}
 	if !d.IsActive() {
 		t.Fatal("detector should be active")

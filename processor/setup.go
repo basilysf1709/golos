@@ -79,7 +79,7 @@ func Setup() (*App, error) {
 	// Create processor
 	proc, err := New(cfg, out)
 	if err != nil {
-		portaudio.Terminate()
+		_ = portaudio.Terminate()
 		return nil, err
 	}
 

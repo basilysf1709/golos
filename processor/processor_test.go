@@ -128,10 +128,8 @@ func TestVuMeterMid(t *testing.T) {
 	// Should have some bars but not all
 	full := len("██████████")
 	empty := len("░░░░░░░░░░")
-	content := meter[1 : len(meter)-1] // strip [ and ]
-	if len(content) != full && len(content) != empty {
-		// Just verify it's a valid meter with brackets
-	}
+	_ = full
+	_ = empty
 	if meter[0] != '[' || meter[len(meter)-1] != ']' {
 		t.Errorf("vuMeter should be bracketed, got %q", meter)
 	}
