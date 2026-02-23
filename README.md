@@ -1,4 +1,4 @@
-<img width="300" height="150" alt="Screenshot_1447-09-06_at_2 57 55_AM-removebg-preview" src="https://github.com/user-attachments/assets/dd250bb3-d47c-4b6d-9404-72d78d633a2f" />
+<img width="1024" height="448" alt="image" src="https://github.com/user-attachments/assets/3da18627-624e-4e5c-bbe0-e9a433db51c9" />
 
 
 # golos - extremely lightweight wispr flow alternative
