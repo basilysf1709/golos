@@ -33,39 +33,71 @@ if ! command -v brew &>/dev/null; then
 fi
 ok "Homebrew found"
 
-# Check Go
-if ! command -v go &>/dev/null; then
-    info "Installing Go..."
-    brew install go
-fi
-ok "Go $(go version | awk '{print $3}' | sed 's/go//')"
-
-# Install portaudio
+# Install portaudio (required at runtime)
 if ! brew list portaudio &>/dev/null; then
     info "Installing portaudio..."
     brew install portaudio
 fi
 ok "portaudio"
 
-# Build
+# Detect architecture
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64) GOARCH="amd64" ;;
+    arm64)  GOARCH="arm64" ;;
+    *)      fail "Unsupported architecture: $ARCH" ;;
+esac
+
+# Try downloading pre-built binary from GitHub Releases
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
-info "Downloading golos..."
-git clone --depth 1 "https://github.com/$REPO.git" "$TMPDIR/golos" 2>/dev/null
-ok "Downloaded"
+LATEST_TAG=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | head -1 | cut -d'"' -f4)
 
-info "Building..."
-cd "$TMPDIR/golos"
-go build -o golos .
-ok "Built"
+if [[ -n "$LATEST_TAG" ]]; then
+    VERSION="${LATEST_TAG#v}"
+    TARBALL="golos_${VERSION}_darwin_${GOARCH}.tar.gz"
+    URL="https://github.com/$REPO/releases/download/${LATEST_TAG}/${TARBALL}"
+
+    info "Downloading golos $LATEST_TAG..."
+    if curl -sL --fail -o "$TMPDIR/$TARBALL" "$URL" 2>/dev/null; then
+        tar -xzf "$TMPDIR/$TARBALL" -C "$TMPDIR"
+        ok "Downloaded $LATEST_TAG"
+    else
+        warn "Pre-built binary not available, building from source..."
+        LATEST_TAG=""
+    fi
+fi
+
+# Fallback: build from source
+if [[ -z "$LATEST_TAG" ]]; then
+    # Check Go
+    if ! command -v go &>/dev/null; then
+        info "Installing Go..."
+        brew install go
+    fi
+    ok "Go $(go version | awk '{print $3}' | sed 's/go//')"
+
+    info "Downloading source..."
+    git clone --depth 1 "https://github.com/$REPO.git" "$TMPDIR/golos" 2>/dev/null
+    ok "Downloaded"
+
+    info "Building..."
+    cd "$TMPDIR/golos"
+    go build -o "$TMPDIR/golos_bin" .
+    mv "$TMPDIR/golos_bin" "$TMPDIR/golos_binary"
+    # Clean up cloned dir so the binary path is clear
+    rm -rf "$TMPDIR/golos"
+    mv "$TMPDIR/golos_binary" "$TMPDIR/golos"
+    ok "Built"
+fi
 
 # Install binary
 info "Installing to $INSTALL_DIR..."
 if [[ -w "$INSTALL_DIR" ]]; then
-    cp golos "$INSTALL_DIR/golos"
+    cp "$TMPDIR/golos" "$INSTALL_DIR/golos"
 else
-    sudo cp golos "$INSTALL_DIR/golos"
+    sudo cp "$TMPDIR/golos" "$INSTALL_DIR/golos"
 fi
 chmod +x "$INSTALL_DIR/golos"
 ok "Installed to $INSTALL_DIR/golos"
