@@ -1,5 +1,7 @@
 # golos - extremely lightweight wispr flow alternative
 
+<img width="498" height="198" alt="Screenshot_1447-09-06_at_2 57 55_AM-removebg-preview" src="https://github.com/user-attachments/assets/dd250bb3-d47c-4b6d-9404-72d78d633a2f" />
+
 Speech-to-text for Claude Code. Hold a hotkey, speak, release — your words get pasted.
 
 ## Install
