@@ -1,9 +1,9 @@
 <img width="1024" height="448" alt="image" src="https://github.com/user-attachments/assets/3da18627-624e-4e5c-bbe0-e9a433db51c9" />
 
 
-# Golos - extremely lightweight wispr flow alternative
+# Golos
 
-Speech-to-text for Claude Code. Hold a hotkey, speak, release — your words get pasted.
+Golos is an extremely lightweight Wispr Flow alternative. Hold a hotkey, speak, release — your words get pasted.
 
 ## Install
 
