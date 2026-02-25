@@ -182,7 +182,7 @@ func TestAccumulateFinal(t *testing.T) {
 	close(p.connected) // simulate already-connected state
 	p.provider = &mockProvider{results: results}
 
-	go p.accumulate()
+	go p.accumulate(p.connected, p.doneCh, p.gotFinal)
 
 	// Send interim then final
 	results <- internal.TranscriptResult{Text: "hel", IsFinal: false}
@@ -219,7 +219,7 @@ func TestAccumulateMultipleFinals(t *testing.T) {
 	close(p.connected) // simulate already-connected state
 	p.provider = &mockProvider{results: results}
 
-	go p.accumulate()
+	go p.accumulate(p.connected, p.doneCh, p.gotFinal)
 
 	results <- internal.TranscriptResult{Text: "hello", IsFinal: true}
 	<-p.gotFinal
