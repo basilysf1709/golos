@@ -36,7 +36,7 @@ func goHotkeyDown() {
 	fn := onDown
 	hotkeyMu.Unlock()
 	if fn != nil {
-		fn()
+		go fn()
 	}
 }
 
@@ -46,7 +46,7 @@ func goHotkeyUp() {
 	fn := onUp
 	hotkeyMu.Unlock()
 	if fn != nil {
-		fn()
+		go fn()
 	}
 }
 

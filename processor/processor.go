@@ -100,7 +100,7 @@ func (p *Processor) Stop() {
 		return
 	}
 	p.recording = false
-	internal.OverlayShow(1)
+	internal.OverlayHide()
 
 	cap := p.capture
 	prov := p.provider
@@ -165,7 +165,6 @@ func (p *Processor) Stop() {
 	} else {
 		fmt.Print("\r\033[K(no speech detected)\n")
 	}
-	internal.OverlayHide()
 }
 
 // drainResults reads any remaining results from the provider channel

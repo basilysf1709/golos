@@ -1,8 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 
-// Embedded mascot PNG data
+// Embedded asset data
 #include "mascot_data.h"
+#include "start_sound_data.h"
 
 static const CGFloat kCircleSize = 48.0;
 static const CGFloat kBorderWidth = 2.5;
@@ -14,6 +15,7 @@ static const CGFloat kWindowSize = 48.0 + 20.0; // kCircleSize + 2*kShadowPad
 static NSPanel *overlayPanel = nil;
 static NSView *ringView = nil;
 static NSImageView *imageView = nil;
+static NSSound *startSound = nil;
 static bool overlayReady = false;
 
 static void createPanel(void) {
@@ -66,7 +68,7 @@ static void createPanel(void) {
     [ringView addSubview:imageView];
     [overlayPanel.contentView addSubview:ringView];
 
-    // Position: bottom center, 10px above screen edge
+    // Position: bottom center, above screen edge
     NSScreen *screen = [NSScreen mainScreen];
     if (screen) {
         NSRect sv = [screen frame];
@@ -74,6 +76,11 @@ static void createPanel(void) {
         CGFloat y = sv.origin.y + kBottomMargin;
         [overlayPanel setFrameOrigin:NSMakePoint(x, y)];
     }
+
+    // Pre-load start sound from embedded data
+    NSData *soundData = [NSData dataWithBytesNoCopy:start_sound_mp3 length:start_sound_mp3_len freeWhenDone:NO];
+    startSound = [[NSSound alloc] initWithData:soundData];
+    [startSound setVolume:0.4];
 
     overlayReady = true;
 }
@@ -103,6 +110,13 @@ static void stopPulse(void) {
     ringView.layer.shadowOpacity = 0;
 }
 
+static void playStartSound(void) {
+    if (startSound) {
+        [startSound stop]; // reset if already playing
+        [startSound play];
+    }
+}
+
 void overlayInit(void) {
     dispatch_async(dispatch_get_main_queue(), ^{
         createPanel();
@@ -117,8 +131,9 @@ void overlayShow(int state) {
 
         NSColor *color;
         if (state == 0) {
-            // Listening — green ring
+            // Listening — green ring + sound
             color = [NSColor colorWithSRGBRed:0.2 green:0.84 blue:0.4 alpha:1.0];
+            playStartSound();
         } else {
             // Processing — amber ring
             color = [NSColor colorWithSRGBRed:1.0 green:0.76 blue:0.0 alpha:1.0];
