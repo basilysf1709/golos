@@ -3,9 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/basilysf1709/golos/cli"
 )
+
+func init() {
+	// Pin the main goroutine to macOS thread 0 so that
+	// dispatch_get_main_queue() and AppKit UI calls work correctly.
+	runtime.LockOSThread()
+}
 
 // Set by goreleaser ldflags.
 var (

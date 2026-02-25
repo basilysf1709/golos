@@ -244,6 +244,7 @@ func runForeground() {
 	fmt.Println()
 	fmt.Println("Ready — hold hotkey to speak")
 
+	internal.OverlayInit(app.Config.Overlay)
 	if err := internal.ListenHotkey(app.Hotkey, app.Proc.Start, app.Proc.Stop); err != nil {
 		fmt.Fprintf(os.Stderr, "Hotkey error: %v\n", err)
 		os.Exit(1)

@@ -15,6 +15,7 @@ type Config struct {
 	OutputMode     string `toml:"output_mode"`
 	SampleRate     int    `toml:"sample_rate"`
 	Language       string `toml:"language"`
+	Overlay        bool   `toml:"overlay"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -23,6 +24,7 @@ func LoadConfig() (*Config, error) {
 		OutputMode: "clipboard",
 		SampleRate: 16000,
 		Language:   "en-US",
+		Overlay:    true,
 	}
 
 	// Load .env file from current directory (silent if missing)
