@@ -67,18 +67,24 @@ func (p *Processor) Start() {
 	p.gotFinal = make(chan struct{})
 	p.connected = make(chan struct{})
 
+	// Capture session-scoped references so goroutines from a previous
+	// session never touch channels belonging to a new session.
+	done := p.doneCh
+	gotFinal := p.gotFinal
+	conn := p.connected
+
 	// Connect to Deepgram in background
-	go p.connect()
+	go p.connect(conn, done)
 
 	// Audio → STT (buffers until connected)
 	p.streamWg.Add(1)
-	go p.streamAudio()
+	go p.streamAudio(conn, done)
 
 	// Transcript accumulator
-	go p.accumulate()
+	go p.accumulate(conn, done, gotFinal)
 }
 
-func (p *Processor) connect() {
+func (p *Processor) connect(conn chan struct{}, done chan struct{}) {
 	prov := internal.NewDeepgram(p.cfg.DeepgramAPIKey, p.cfg.Language)
 	if err := prov.Connect(); err != nil {
 		fmt.Fprintf(os.Stderr, "\nSTT connect error: %v\n", err)
@@ -87,10 +93,19 @@ func (p *Processor) connect() {
 		p.mu.Unlock()
 		return
 	}
+
+	// If session was cancelled while connecting, discard the provider.
+	select {
+	case <-done:
+		prov.Close()
+		return
+	default:
+	}
+
 	p.mu.Lock()
 	p.provider = prov
 	p.mu.Unlock()
-	close(p.connected)
+	close(conn)
 }
 
 func (p *Processor) Stop() {
@@ -194,7 +209,7 @@ func (p *Processor) drainResults(prov internal.Provider, timeout time.Duration) 
 	}
 }
 
-func (p *Processor) streamAudio() {
+func (p *Processor) streamAudio(conn chan struct{}, done chan struct{}) {
 	defer p.streamWg.Done()
 
 	// Buffer frames while Deepgram connects
@@ -214,7 +229,7 @@ func (p *Processor) streamAudio() {
 		}
 
 		select {
-		case <-p.connected:
+		case <-conn:
 			// Capture provider once after connection is ready
 			if prov == nil {
 				p.mu.Lock()
@@ -239,18 +254,18 @@ func (p *Processor) streamAudio() {
 	}
 }
 
-func (p *Processor) accumulate() {
+func (p *Processor) accumulate(conn chan struct{}, done chan struct{}, gotFinal chan struct{}) {
 	// Wait for connection before reading results
 	select {
-	case <-p.connected:
-	case <-p.doneCh:
+	case <-conn:
+	case <-done:
 		return
 	}
 
 	finalSignaled := false
 	for {
 		select {
-		case <-p.doneCh:
+		case <-done:
 			return
 		case result, ok := <-p.provider.Results():
 			if !ok {
@@ -265,7 +280,7 @@ func (p *Processor) accumulate() {
 				fmt.Printf("\r\033[K💬 %s", p.transcript.String())
 				if !finalSignaled {
 					finalSignaled = true
-					close(p.gotFinal)
+					close(gotFinal)
 				}
 			} else {
 				interim := p.transcript.String()

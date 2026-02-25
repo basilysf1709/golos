@@ -1,4 +1,2 @@
 internal/mascot_data.h linguist-generated
 internal/start_sound_data.h linguist-generated
-internal/overlay_darwin.m linguist-vendored
-internal/hotkey_darwin.c linguist-vendored
