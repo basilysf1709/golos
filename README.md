@@ -14,6 +14,7 @@ curl -fsSL https://raw.githubusercontent.com/basilysf1709/golos/main/install.sh 
 ## Usage
 
 ```bash
+golos setup                  # configure API key
 golos                        # run in foreground
 golos -d                     # run in background
 golos --output stdout        # output to stdout instead of clipboard
@@ -25,6 +26,7 @@ golos stop                   # stop background process
 
 | Command | Description |
 |---------|-------------|
+| `golos setup` | Configure Deepgram API key |
 | `golos` | Run speech-to-text (foreground) |
 | `golos -d` | Run speech-to-text (background) |
 | `golos stop` | Stop the background process |
