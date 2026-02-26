@@ -11,6 +11,15 @@ Golos is an extremely lightweight Wispr Flow alternative. Hold a hotkey, speak, 
 curl -fsSL https://raw.githubusercontent.com/basilysf1709/golos/main/install.sh | bash
 ```
 
+## Permissions
+
+Golos needs **Accessibility** permission to listen for your hotkey and paste transcriptions. After running Golos for the first time, macOS will prompt you to grant access:
+
+1. Open **System Settings → Privacy & Security → Accessibility**
+2. Enable the toggle for your terminal app (e.g. Terminal, iTerm2, Alacritty)
+
+If you skip this step, Golos won't be able to detect the hotkey or paste text.
+
 ## Usage
 
 ```bash
