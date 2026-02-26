@@ -30,7 +30,7 @@ static void createPanel(void) {
                     backing:NSBackingStoreBuffered
                       defer:NO];
 
-    [overlayPanel setLevel:NSStatusWindowLevel];
+    [overlayPanel setLevel:NSScreenSaverWindowLevel - 1];
     [overlayPanel setOpaque:NO];
     [overlayPanel setBackgroundColor:[NSColor clearColor]];
     [overlayPanel setIgnoresMouseEvents:YES];
