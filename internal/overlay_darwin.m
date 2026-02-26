@@ -18,6 +18,39 @@ static NSImageView *imageView = nil;
 static NSSound *startSound = nil;
 static bool overlayReady = false;
 
+static NSScreen *currentOverlayScreen(void) {
+    NSPoint mouse = [NSEvent mouseLocation];
+    for (NSScreen *screen in [NSScreen screens]) {
+        if (NSPointInRect(mouse, screen.frame)) {
+            return screen;
+        }
+    }
+
+    NSScreen *main = [NSScreen mainScreen];
+    if (main) {
+        return main;
+    }
+
+    NSArray<NSScreen *> *screens = [NSScreen screens];
+    return screens.count > 0 ? screens[0] : nil;
+}
+
+static void positionPanel(void) {
+    if (!overlayPanel) {
+        return;
+    }
+
+    NSScreen *screen = currentOverlayScreen();
+    if (!screen) {
+        return;
+    }
+
+    NSRect sv = [screen frame];
+    CGFloat x = sv.origin.x + (sv.size.width - kWindowSize) / 2.0;
+    CGFloat y = sv.origin.y + kBottomMargin;
+    [overlayPanel setFrameOrigin:NSMakePoint(x, y)];
+}
+
 static void createPanel(void) {
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
@@ -30,7 +63,7 @@ static void createPanel(void) {
                     backing:NSBackingStoreBuffered
                       defer:NO];
 
-    [overlayPanel setLevel:NSScreenSaverWindowLevel - 1];
+    [overlayPanel setLevel:NSScreenSaverWindowLevel];
     [overlayPanel setOpaque:NO];
     [overlayPanel setBackgroundColor:[NSColor clearColor]];
     [overlayPanel setIgnoresMouseEvents:YES];
@@ -68,14 +101,8 @@ static void createPanel(void) {
     [ringView addSubview:imageView];
     [overlayPanel.contentView addSubview:ringView];
 
-    // Position: bottom center, above screen edge
-    NSScreen *screen = [NSScreen mainScreen];
-    if (screen) {
-        NSRect sv = [screen frame];
-        CGFloat x = (sv.size.width - kWindowSize) / 2.0;
-        CGFloat y = sv.origin.y + kBottomMargin;
-        [overlayPanel setFrameOrigin:NSMakePoint(x, y)];
-    }
+    // Position: bottom center on the current screen
+    positionPanel();
 
     // Pre-load start sound from embedded data
     NSData *soundData = [NSData dataWithBytesNoCopy:start_sound_mp3 length:start_sound_mp3_len freeWhenDone:NO];
@@ -143,6 +170,9 @@ void overlayShow(int state) {
         // Need to temporarily allow overflow for the glow shadow
         ringView.layer.masksToBounds = NO;
         startPulse();
+
+        // Reposition on every show so monitor/space changes don't strand the panel.
+        positionPanel();
 
         [overlayPanel orderFrontRegardless];
     });
