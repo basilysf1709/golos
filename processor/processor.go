@@ -212,7 +212,10 @@ func (p *Processor) drainResults(prov internal.Provider, timeout time.Duration) 
 func (p *Processor) streamAudio(conn chan struct{}, done chan struct{}) {
 	defer p.streamWg.Done()
 
-	// Buffer frames while Deepgram connects
+	// Buffer up to 30 seconds of audio while Deepgram connects.
+	// At 16 kHz with 128-sample frames, that's ~3750 frames.
+	const maxBuffered = 3750
+
 	var buffered [][]byte
 	var prov internal.Provider
 
@@ -248,7 +251,10 @@ func (p *Processor) streamAudio(conn chan struct{}, done chan struct{}) {
 			}
 			_, _ = prov.Write(buf)
 		default:
-			// Still connecting — buffer the audio
+			// Still connecting — buffer the audio, drop oldest if over limit
+			if len(buffered) >= maxBuffered {
+				buffered = buffered[1:]
+			}
 			buffered = append(buffered, buf)
 		}
 	}
