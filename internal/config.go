@@ -52,7 +52,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if cfg.DeepgramAPIKey == "" {
-		return nil, fmt.Errorf("DEEPGRAM_API_KEY is required (set via env var or ~/.config/golos/config.toml)")
+		return nil, fmt.Errorf("DEEPGRAM_API_KEY is required — run 'golos setup' to configure")
 	}
 
 	return cfg, nil

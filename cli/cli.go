@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -137,6 +138,75 @@ func DictList() {
 	for phrase, replacement := range entries {
 		fmt.Printf("  %q → %q\n", phrase, replacement)
 	}
+}
+
+func Setup() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	configDir := filepath.Join(home, ".config", "golos")
+	configPath := filepath.Join(configDir, "config.toml")
+
+	// Load existing config values as defaults
+	existing := map[string]string{
+		"deepgram_api_key": "",
+		"hotkey":           "right_option",
+		"output_mode":      "clipboard",
+		"language":         "en-US",
+	}
+	if data, err := os.ReadFile(configPath); err == nil {
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if k, v, ok := strings.Cut(line, "="); ok {
+				k = strings.TrimSpace(k)
+				v = strings.Trim(strings.TrimSpace(v), `"`)
+				existing[k] = v
+			}
+		}
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println("golos setup")
+	fmt.Println()
+	fmt.Println("Get a free Deepgram API key at: https://console.deepgram.com")
+	fmt.Println()
+
+	// Prompt for API key
+	if existing["deepgram_api_key"] != "" {
+		masked := existing["deepgram_api_key"]
+		if len(masked) > 8 {
+			masked = masked[:4] + "..." + masked[len(masked)-4:]
+		}
+		fmt.Printf("Deepgram API key [%s]: ", masked)
+	} else {
+		fmt.Print("Deepgram API key: ")
+	}
+	apiKey, _ := reader.ReadString('\n')
+	apiKey = strings.TrimSpace(apiKey)
+	if apiKey == "" {
+		apiKey = existing["deepgram_api_key"]
+	}
+	if apiKey == "" {
+		fmt.Fprintln(os.Stderr, "API key is required.")
+		os.Exit(1)
+	}
+
+	_ = os.MkdirAll(configDir, 0700)
+	content := fmt.Sprintf("deepgram_api_key = %q\nhotkey = %q\noutput_mode = %q\nlanguage = %q\n",
+		apiKey, existing["hotkey"], existing["output_mode"], existing["language"])
+
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing config: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println()
+	fmt.Printf("Config saved to %s\n", configPath)
+	fmt.Println("Run 'golos' to start.")
 }
 
 func Stop() {

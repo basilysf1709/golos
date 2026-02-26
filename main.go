@@ -42,6 +42,9 @@ func main() {
 		case "import":
 			cli.DictImport(os.Args[2:])
 			return
+		case "setup":
+			cli.Setup()
+			return
 		}
 	}
 
