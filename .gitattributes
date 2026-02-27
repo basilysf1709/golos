@@ -1,2 +1,3 @@
 internal/mascot_data.h linguist-generated
 internal/start_sound_data.h linguist-generated
+web/** linguist-vendored
