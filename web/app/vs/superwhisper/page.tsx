@@ -39,9 +39,36 @@ function Free() {
   return <span className="text-green-400">Free</span>;
 }
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Is Golos a free alternative to SuperWhisper?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. Golos is completely free and open source. SuperWhisper charges $8-16/month. Golos uses Deepgram Nova-3 for fast cloud-based transcription with a generous free tier.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What is the difference between Golos and SuperWhisper?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "SuperWhisper uses local OpenAI Whisper models and has a GUI. Golos is a lightweight CLI tool that uses cloud-based Deepgram for faster transcription. Golos is free and open source, while SuperWhisper requires a subscription.",
+      },
+    },
+  ],
+};
+
 export default function VsSuperWhisper() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div>
         <p className="text-sm font-medium text-green-400">Comparison</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">

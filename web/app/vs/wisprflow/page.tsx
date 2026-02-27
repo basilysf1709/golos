@@ -38,9 +38,36 @@ function Free() {
   return <span className="text-green-400">Free</span>;
 }
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Is Golos a free alternative to WisprFlow?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. Golos is completely free and open source. WisprFlow charges $8-24/month. Golos gives you the same push-to-talk voice-to-text experience without a subscription.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What is the difference between Golos and WisprFlow?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Golos is a free, open-source CLI tool for macOS. WisprFlow is a paid GUI app with AI rewriting features. Both offer push-to-talk dictation, but Golos is built for developers who prefer terminal workflows.",
+      },
+    },
+  ],
+};
+
 export default function VsWisprFlow() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div>
         <p className="text-sm font-medium text-green-400">Comparison</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">

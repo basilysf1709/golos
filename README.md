@@ -1,9 +1,53 @@
-<img width="1024" height="448" alt="Screenshot 1447-09-06 at 3 18 35 AM" src="https://github.com/user-attachments/assets/62e4b2ce-28a5-4edc-a62f-abd055606061" />
+<p align="center">
+  <img src="assets/mascot.png" alt="Golos Mascot" width="200" />
+</p>
 
+<h1 align="center">Golos</h1>
 
-# Golos
+---
 
-Golos is an extremely lightweight Wispr Flow alternative. Hold a hotkey, speak, release, and your words get pasted.
+<p align="center"><strong>Voice-to-Text, Instantly</strong></p>
+
+<p align="center">
+An extremely lightweight Wispr Flow alternative. Hold a hotkey, speak, release, and your words get pasted.<br/>
+One binary. Zero bloat. Speech that actually works for you.
+</p>
+
+<p align="center">
+  <a href="https://golos.sh">Website</a> &bull;
+  <a href="#install">Quick Start</a> &bull;
+  <a href="https://github.com/basilysf1709/golos">GitHub</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-macOS-blue" alt="platform" />
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="license" />
+  <img src="https://img.shields.io/github/v/release/basilysf1709/golos?color=orange&label=version" alt="version" />
+  <img src="https://img.shields.io/badge/language-Go-00ADD8" alt="language" />
+</p>
+
+---
+
+## What is Golos?
+
+Golos (Russian for "voice") is a free, open-source macOS CLI that turns your voice into text wherever your cursor is. Hold a hotkey to record, release to transcribe, and the result is instantly pasted into the focused application.
+
+**How it works:**
+
+1. **Hold** your hotkey (default: `Right Option`) to start recording
+2. **Speak** — audio streams to [Deepgram Nova-3](https://deepgram.com) in real time with a live transcript in your terminal
+3. **Release** — the final transcription is pasted into whatever app is focused via `Cmd+V`
+
+**Key features:**
+
+- **Push-to-talk** — no always-on microphone, only records while the hotkey is held
+- **Single binary** — no Electron, no GUI, no background service required
+- **Foreground or background mode** — run interactively or daemonize with `golos -d`
+- **Live feedback** — VU meter and interim transcript displayed in real time while speaking
+- **Dictionary replacements** — map spoken words to text (e.g. say "period" → `.`, "new line" → `\n`)
+- **Configurable hotkey** — `right_option`, `right_command`, `fn`, `f18`, or `f19`
+- **Two output modes** — paste into focused app (`clipboard`) or print to `stdout` for piping
+- **Config layering** — defaults → config file → environment variables → CLI flags
 
 ## Install
 

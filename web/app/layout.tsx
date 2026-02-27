@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
 import { GitHubLink } from "./github-link";
 import "./globals.css";
 
@@ -40,17 +41,39 @@ export const metadata: Metadata = {
     description:
       "A free, open-source alternative to WisprFlow. Hold a hotkey, speak, release — your words get pasted.",
     url: siteUrl,
-    images: [{ url: "/mascot.png", width: 512, height: 512, alt: "Golos mascot" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Golos - Voice to Text, Instantly" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Golos - Voice to Text, Instantly",
     description:
       "A free, open-source alternative to WisprFlow. Hold a hotkey, speak, release — your words get pasted.",
-    images: ["/mascot.png"],
+    images: ["/og.png"],
   },
   alternates: {
     canonical: siteUrl,
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Golos",
+  applicationCategory: "UtilitiesApplication",
+  operatingSystem: "macOS",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  description:
+    "A free, open-source alternative to WisprFlow. Hold a hotkey, speak, release — your words get pasted. macOS CLI powered by Deepgram.",
+  url: "https://golos.sh",
+  downloadUrl: "https://github.com/basilysf1709/golos",
+  author: {
+    "@type": "Person",
+    name: "Basil Yusuf",
+    url: "https://github.com/basilysf1709",
   },
 };
 
@@ -61,6 +84,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${inter.className} bg-neutral-950 text-neutral-100 antialiased`}
       >
@@ -82,6 +111,7 @@ export default function RootLayout({
           </div>
         </nav>
         <main className="mx-auto max-w-3xl px-6 py-16">{children}</main>
+        <Analytics />
       </body>
     </html>
   );

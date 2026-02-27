@@ -40,9 +40,36 @@ function Free() {
   return <span className="text-green-400">Free</span>;
 }
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Is Golos a free alternative to Dragon Naturally Speaking?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. Golos is completely free and open source. Dragon Professional costs $200-500. Golos works on macOS with push-to-talk dictation — no voice training required.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Does Dragon Naturally Speaking work on Mac?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Nuance discontinued Dragon Dictate for Mac. Golos is a free, open-source alternative that is built for macOS from the ground up. Install with one command and start dictating in under a minute.",
+      },
+    },
+  ],
+};
+
 export default function VsDragon() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div>
         <p className="text-sm font-medium text-green-400">Comparison</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
