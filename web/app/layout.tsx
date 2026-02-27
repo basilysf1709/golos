@@ -6,13 +6,51 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const siteUrl = "https://golos.sh";
+
 export const metadata: Metadata = {
-  title: "Golos - Voice to Text, Instantly",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Golos - Voice to Text, Instantly",
+    template: "%s | Golos",
+  },
   description:
-    "Hold a hotkey, speak, release. Your words get pasted. A macOS CLI for push-to-talk speech recognition.",
+    "A free, open-source alternative to WisprFlow. Hold a hotkey, speak, release — your words get pasted. macOS CLI powered by Deepgram.",
+  keywords: [
+    "speech to text",
+    "voice to text",
+    "macOS",
+    "CLI",
+    "push to talk",
+    "dictation",
+    "Deepgram",
+    "WisprFlow alternative",
+    "open source",
+  ],
+  authors: [{ name: "Basil Yusuf", url: "https://github.com/basilysf1709" }],
+  creator: "Basil Yusuf",
   icons: {
     icon: "/mascot.png",
     apple: "/mascot.png",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Golos",
+    title: "Golos - Voice to Text, Instantly",
+    description:
+      "A free, open-source alternative to WisprFlow. Hold a hotkey, speak, release — your words get pasted.",
+    url: siteUrl,
+    images: [{ url: "/mascot.png", width: 512, height: 512, alt: "Golos mascot" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Golos - Voice to Text, Instantly",
+    description:
+      "A free, open-source alternative to WisprFlow. Hold a hotkey, speak, release — your words get pasted.",
+    images: ["/mascot.png"],
+  },
+  alternates: {
+    canonical: siteUrl,
   },
 };
 

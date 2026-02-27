@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import { CopyBlock } from "../copy-block";
 
 export const metadata: Metadata = {
-  title: "Docs - Golos",
-  description: "CLI reference for Golos speech-to-text tool.",
+  title: "Docs",
+  description:
+    "Complete CLI reference for Golos — commands, flags, dictionary, configuration, hotkeys, and environment variables.",
+  alternates: {
+    canonical: "https://golos.sh/docs",
+  },
+  openGraph: {
+    title: "Docs | Golos",
+    description:
+      "Complete CLI reference for Golos — commands, flags, dictionary, configuration, hotkeys, and environment variables.",
+    url: "https://golos.sh/docs",
+  },
 };
 
 function Code({ children }: { children: React.ReactNode }) {
