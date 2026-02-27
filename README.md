@@ -24,8 +24,6 @@ One binary. Zero bloat. Speech that actually works for you.
   <img src="https://img.shields.io/badge/language-Go-00ADD8" alt="language" />
 </p>
 
----
-
 ## What is Golos?
 
 Golos (Russian for "voice") is a free, open-source macOS CLI that turns your voice into text wherever your cursor is. Hold a hotkey to record, release to transcribe, and the result is instantly pasted into the focused application.
