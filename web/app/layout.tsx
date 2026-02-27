@@ -74,6 +74,9 @@ export default function RootLayout({
               <Link href="/docs" className="hover:text-neutral-100 transition-colors">
                 Docs
               </Link>
+              <Link href="/blog" className="hover:text-neutral-100 transition-colors">
+                Blog
+              </Link>
               <GitHubLink />
             </div>
           </div>
