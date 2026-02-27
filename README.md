@@ -4,8 +4,6 @@
 
 <h1 align="center">Golos</h1>
 
----
-
 <p align="center"><strong>Voice-to-Text, Instantly</strong></p>
 
 <p align="center">
