@@ -30,7 +30,7 @@ Golos (Russian for "voice") is a free, open-source macOS CLI that turns your voi
 
 **How it works:**
 
-1. **Hold** your hotkey (default: `Right Option`) to start recording
+1. **Hold** your hotkey (default: `Right Option` or `Left Option`) to start recording
 2. **Speak** — audio streams to [Deepgram Nova-3](https://deepgram.com) in real time with a live transcript in your terminal
 3. **Release** — the final transcription is pasted into whatever app is focused via `Cmd+V`
 
